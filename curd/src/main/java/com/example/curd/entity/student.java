@@ -1,11 +1,9 @@
 package com.example.curd.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "students")
 public class student {
 
     @Id
@@ -14,14 +12,93 @@ public class student {
 
     private String name;
     private int age;
+
+    @Column(unique = true, nullable = false)
     private String rollno;
+
     private String subject;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    private String course;
+    private String department;
+    private String academicYear;
+    private Integer semester = 1;
+    private String phone;
+    private String address;
+    private String gender;
+    private String status = "ACTIVE"; // ACTIVE, INACTIVE, DETAINED
+
     private double javaAttendance;
     private double dbmsAttendance;
     private double dsaAttendance;
     private double cnAttendance;
     private double aiAttendance;
+
+    public String getCourse() {
+        return course;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public String getAcademicYear() {
+        return academicYear;
+    }
+
+    public void setAcademicYear(String academicYear) {
+        this.academicYear = academicYear;
+    }
+
+    public Integer getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Integer semester) {
+        this.semester = semester;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public double getJavaAttendance() {
         return javaAttendance;
