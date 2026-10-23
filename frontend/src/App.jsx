@@ -24,6 +24,7 @@ import { departmentApi } from './api/departmentApi';
 import { courseApi } from './api/courseApi';
 import { academicYearApi } from './api/academicYearApi';
 import { extractErrorMessage } from './utils/errorHandler';
+import { INITIAL_DEMO_DATA } from './utils/mockData';
 
 const MainApp = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -88,26 +89,53 @@ const MainApp = () => {
         studentApi.getAll(),
       ]);
 
-      if (deptRes.status === 'fulfilled' && Array.isArray(deptRes.value)) {
+      if (deptRes.status === 'fulfilled' && Array.isArray(deptRes.value) && deptRes.value.length > 0) {
         setDepartments(deptRes.value);
+      } else {
+        setDepartments((prev) => (prev.length ? prev : INITIAL_DEMO_DATA.departments));
       }
-      if (courseRes.status === 'fulfilled' && Array.isArray(courseRes.value)) {
+
+      if (courseRes.status === 'fulfilled' && Array.isArray(courseRes.value) && courseRes.value.length > 0) {
         setCourses(courseRes.value);
+      } else {
+        setCourses((prev) => (prev.length ? prev : INITIAL_DEMO_DATA.courses));
       }
-      if (ayRes.status === 'fulfilled' && Array.isArray(ayRes.value)) {
+
+      if (ayRes.status === 'fulfilled' && Array.isArray(ayRes.value) && ayRes.value.length > 0) {
         setAcademicYears(ayRes.value);
+      } else {
+        setAcademicYears((prev) => (prev.length ? prev : INITIAL_DEMO_DATA.academicYears));
       }
+
       if (curAyRes.status === 'fulfilled' && curAyRes.value) {
         setCurrentAcademicYear(curAyRes.value);
+      } else {
+        setCurrentAcademicYear((prev) => prev || INITIAL_DEMO_DATA.academicYears[0]);
       }
-      if (detainRes.status === 'fulfilled' && Array.isArray(detainRes.value)) {
+
+      if (detainRes.status === 'fulfilled' && Array.isArray(detainRes.value) && detainRes.value.length > 0) {
         setDetainedStudents(detainRes.value);
+      } else {
+        setDetainedStudents((prev) =>
+          prev.length
+            ? prev
+            : INITIAL_DEMO_DATA.students.filter((s) => s.status === 'DETAINED')
+        );
       }
-      if (allStRes.status === 'fulfilled' && Array.isArray(allStRes.value)) {
+
+      if (allStRes.status === 'fulfilled' && Array.isArray(allStRes.value) && allStRes.value.length > 0) {
         setAllStudents(allStRes.value);
+      } else {
+        setAllStudents((prev) => (prev.length ? prev : INITIAL_DEMO_DATA.students));
       }
     } catch (err) {
-      console.error('Error loading metadata:', err);
+      console.warn('Backend unavailable, using initial demo data:', err);
+      setDepartments(INITIAL_DEMO_DATA.departments);
+      setCourses(INITIAL_DEMO_DATA.courses);
+      setAcademicYears(INITIAL_DEMO_DATA.academicYears);
+      setCurrentAcademicYear(INITIAL_DEMO_DATA.academicYears[0]);
+      setAllStudents(INITIAL_DEMO_DATA.students);
+      setDetainedStudents(INITIAL_DEMO_DATA.students.filter((s) => s.status === 'DETAINED'));
     }
   }, []);
 
@@ -127,26 +155,41 @@ const MainApp = () => {
         sortDir,
       });
 
-      if (res && res.content) {
+      if (res && res.content && res.content.length > 0) {
         setPagedStudents(res.content);
         setTotalElements(res.totalElements ?? res.content.length);
         setTotalPages(res.totalPages ?? 1);
-      } else if (Array.isArray(res)) {
+      } else if (Array.isArray(res) && res.length > 0) {
         setPagedStudents(res);
         setTotalElements(res.length);
         setTotalPages(1);
+      } else {
+        // Filter demo students locally if backend returns empty or unavailable
+        let filtered = INITIAL_DEMO_DATA.students;
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          filtered = filtered.filter(
+            (s) =>
+              s.name.toLowerCase().includes(q) ||
+              s.rollno.toLowerCase().includes(q) ||
+              s.email.toLowerCase().includes(q)
+          );
+        }
+        if (selectedDept) {
+          filtered = filtered.filter((s) => s.department === selectedDept);
+        }
+        if (selectedCourse) {
+          filtered = filtered.filter((s) => s.course === selectedCourse);
+        }
+        setPagedStudents(filtered);
+        setTotalElements(filtered.length);
+        setTotalPages(1);
       }
     } catch (err) {
-      console.warn('Paged search fallback:', err.message);
-      // Fallback to client-side filtering if search endpoint fails
-      try {
-        const fallback = await studentApi.getAll();
-        setPagedStudents(fallback);
-        setTotalElements(fallback.length);
-        setTotalPages(1);
-      } catch (e) {
-        console.error('Failed to load students:', e);
-      }
+      console.warn('Paged search fallback to demo dataset:', err.message);
+      setPagedStudents(INITIAL_DEMO_DATA.students);
+      setTotalElements(INITIAL_DEMO_DATA.students.length);
+      setTotalPages(1);
     } finally {
       setStudentsLoading(false);
     }

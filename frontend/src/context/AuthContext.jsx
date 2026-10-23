@@ -75,9 +75,26 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  const loginAsDemo = (role = 'ROLE_ADMIN') => {
+    const demoUser = {
+      id: 1,
+      username: 'admin.demo',
+      email: 'admin@university.edu',
+      fullName: 'Dr. Jane Smith (Administrator)',
+      role: role,
+    };
+    localStorage.setItem('edupulse_token', 'demo-token');
+    localStorage.setItem('edupulse_user', JSON.stringify(demoUser));
+    setToken('demo-token');
+    setUser(demoUser);
+    addToast('Logged in successfully in Demo Mode!', 'info');
+  };
+
   const logout = async () => {
     try {
-      await authApi.logout();
+      if (token && token !== 'demo-token') {
+        await authApi.logout();
+      }
     } catch {
       // Ignore
     } finally {
@@ -102,6 +119,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin,
         isTeacher,
         login,
+        loginAsDemo,
         register,
         logout,
       }}

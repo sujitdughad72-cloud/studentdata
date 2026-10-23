@@ -15,7 +15,7 @@ export const Login = () => {
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('ROLE_ADMIN');
 
-  const { login, register } = useAuth();
+  const { login, register, loginAsDemo } = useAuth();
   const { addToast } = useToast();
 
   const handleLoginSubmit = async (e) => {
@@ -140,10 +140,25 @@ export const Login = () => {
               <ArrowRight size={16} />
             </button>
 
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => loginAsDemo('ROLE_ADMIN')}
+              style={{
+                width: '100%',
+                marginTop: '10px',
+                fontSize: '0.825rem',
+                borderColor: 'rgba(59, 130, 246, 0.4)',
+                background: 'rgba(59, 130, 246, 0.08)',
+              }}
+            >
+              ✨ Instant Demo Mode (Preview All Tabs)
+            </button>
+
             {/* Quick Fill Demo Helper */}
-            <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', marginBottom: '10px' }}>
-                Quick Test Credentials
+                Fill Local Test Credentials
               </div>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                 <button
