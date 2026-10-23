@@ -23,6 +23,7 @@ import { studentApi } from './api/studentApi';
 import { departmentApi } from './api/departmentApi';
 import { courseApi } from './api/courseApi';
 import { academicYearApi } from './api/academicYearApi';
+import { extractErrorMessage } from './utils/errorHandler';
 
 const MainApp = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -185,7 +186,7 @@ const MainApp = () => {
       setEditingStudent(null);
       refreshAll();
     } catch (err) {
-      addToast(err.message || 'Failed to save student', 'error');
+      addToast(extractErrorMessage(err, 'Failed to save student'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -204,7 +205,7 @@ const MainApp = () => {
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
           refreshAll();
         } catch (err) {
-          addToast(err.message || 'Failed to delete student', 'error');
+          addToast(extractErrorMessage(err, 'Failed to delete student'), 'error');
         } finally {
           setActionLoading(false);
         }
@@ -227,7 +228,7 @@ const MainApp = () => {
       setEditingDepartment(null);
       loadAuxData();
     } catch (err) {
-      addToast(err.message || 'Failed to save department', 'error');
+      addToast(extractErrorMessage(err, 'Failed to save department'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -246,7 +247,7 @@ const MainApp = () => {
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
           loadAuxData();
         } catch (err) {
-          addToast(err.message || 'Failed to delete department', 'error');
+          addToast(extractErrorMessage(err, 'Failed to delete department'), 'error');
         } finally {
           setActionLoading(false);
         }
@@ -269,7 +270,7 @@ const MainApp = () => {
       setEditingCourse(null);
       loadAuxData();
     } catch (err) {
-      addToast(err.message || 'Failed to save course', 'error');
+      addToast(extractErrorMessage(err, 'Failed to save course'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -288,7 +289,7 @@ const MainApp = () => {
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
           loadAuxData();
         } catch (err) {
-          addToast(err.message || 'Failed to delete course', 'error');
+          addToast(extractErrorMessage(err, 'Failed to delete course'), 'error');
         } finally {
           setActionLoading(false);
         }
@@ -305,7 +306,7 @@ const MainApp = () => {
       setAcademicYearModalOpen(false);
       loadAuxData();
     } catch (err) {
-      addToast(err.message || 'Failed to create academic year', 'error');
+      addToast(extractErrorMessage(err, 'Failed to create academic year'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -317,7 +318,7 @@ const MainApp = () => {
       addToast('Active academic term updated!', 'success');
       loadAuxData();
     } catch (err) {
-      addToast(err.message || 'Failed to update active year', 'error');
+      addToast(extractErrorMessage(err, 'Failed to update active year'), 'error');
     }
   };
 
@@ -334,7 +335,7 @@ const MainApp = () => {
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
           loadAuxData();
         } catch (err) {
-          addToast(err.message || 'Failed to delete academic year', 'error');
+          addToast(extractErrorMessage(err, 'Failed to delete academic year'), 'error');
         } finally {
           setActionLoading(false);
         }

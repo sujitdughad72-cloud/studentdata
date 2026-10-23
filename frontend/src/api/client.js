@@ -1,4 +1,5 @@
 // Centralized API client with JWT Auth handling
+import { extractErrorMessage } from '../utils/errorHandler';
 
 const API_BASE_URL = '/api';
 
@@ -41,10 +42,10 @@ export async function apiRequest(endpoint, options = {}) {
     }
 
     if (!response.ok) {
-      const errorMessage =
-        (data && (data.message || data.error)) ||
-        (typeof data === 'string' && data) ||
-        `Request failed with status ${response.status}`;
+      const errorMessage = extractErrorMessage(
+        data,
+        `Request failed with status ${response.status}`
+      );
       const err = new Error(errorMessage);
       err.status = response.status;
       err.data = data;
@@ -53,7 +54,14 @@ export async function apiRequest(endpoint, options = {}) {
 
     return data;
   } catch (error) {
-    console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, error);
+    const cleanMessage = extractErrorMessage(
+      error,
+      `Network error communicating with server`
+    );
+    if (!error.message || error.message === '[object Object]') {
+      error.message = cleanMessage;
+    }
+    console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, cleanMessage, error);
     throw error;
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useToast } from '../context/ToastContext';
 import { CheckCircle2, AlertTriangle, XCircle, Info, X } from 'lucide-react';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 export const Toast = () => {
   const { toasts, removeToast } = useToast();
@@ -22,24 +23,28 @@ export const Toast = () => {
 
   return (
     <div className="toast-container">
-      {toasts.map((toast) => (
-        <div key={toast.id} className={`toast ${toast.type}`}>
-          {getIcon(toast.type)}
-          <span style={{ flex: 1 }}>{toast.message}</span>
-          <button
-            onClick={() => removeToast(toast.id)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-            }}
-          >
-            <X size={15} />
-          </button>
-        </div>
-      ))}
+      {toasts.map((toast) => {
+        const displayText = extractErrorMessage(toast.message, 'Notification');
+        return (
+          <div key={toast.id} className={`toast ${toast.type}`}>
+            {getIcon(toast.type)}
+            <span style={{ flex: 1 }}>{displayText}</span>
+            <button
+              onClick={() => removeToast(toast.id)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+              }}
+              aria-label="Dismiss alert"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 };

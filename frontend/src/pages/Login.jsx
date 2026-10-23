@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { extractErrorMessage } from '../utils/errorHandler';
 import { Sparkles, Lock, User, Mail, ShieldAlert, ArrowRight, Check } from 'lucide-react';
 
 export const Login = () => {
@@ -27,7 +28,7 @@ export const Login = () => {
     try {
       await login({ username, password });
     } catch (err) {
-      addToast(err.message || 'Login failed', 'error');
+      addToast(extractErrorMessage(err, 'Login failed: check your username and password'), 'error');
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,7 @@ export const Login = () => {
       });
       setIsRegister(false);
     } catch (err) {
-      addToast(err.message || 'Registration failed', 'error');
+      addToast(extractErrorMessage(err, 'Registration failed'), 'error');
     } finally {
       setLoading(false);
     }

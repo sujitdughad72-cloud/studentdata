@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 const ToastContext = createContext(null);
 
@@ -9,7 +10,8 @@ export const ToastProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const addToast = useCallback((message, type = 'info', duration = 4000) => {
+  const addToast = useCallback((rawMessage, type = 'info', duration = 4000) => {
+    const message = extractErrorMessage(rawMessage, 'An update occurred');
     const id = Date.now() + Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
 
