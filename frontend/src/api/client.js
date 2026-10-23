@@ -1,7 +1,8 @@
 // Centralized API client with JWT Auth handling
 import { extractErrorMessage } from '../utils/errorHandler';
 
-const API_BASE_URL = '/api';
+// Use production backend URL if set in environment, or fallback to local proxy /api
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('edupulse_token');
