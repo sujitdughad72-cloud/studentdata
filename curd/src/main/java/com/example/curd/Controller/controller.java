@@ -24,7 +24,7 @@ public class controller {
     // =========================
     // CREATE STUDENT
     // =========================
-    @PostMapping("/create")
+    @PostMapping({"", "/create"})
     public ResponseEntity<?> createStudent(@RequestBody student st) {
         try {
             System.out.println("Inside Controller");
@@ -68,7 +68,7 @@ public class controller {
     // =========================
     // GET STUDENT BY ID
     // =========================
-    @GetMapping("/find/{Id}")
+    @GetMapping({"/find/{Id}", "/{Id}"})
     public ResponseEntity<?> find(@PathVariable long Id) {
         student st = service.findbyid(Id);
         if (st == null) {
@@ -104,7 +104,7 @@ public class controller {
     // =========================
     // UPDATE STUDENT
     // =========================
-    @PutMapping("/update/{Id}")
+    @PutMapping({"/update/{Id}", "/{Id}"})
     public ResponseEntity<?> update(
             @PathVariable long Id,
             @RequestBody student st) {
