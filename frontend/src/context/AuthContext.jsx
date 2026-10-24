@@ -20,6 +20,11 @@ export const AuthProvider = ({ children }) => {
           if (storedUser) {
             setUser(JSON.parse(storedUser));
           }
+          // In demo mode or if offline, keep user session without pinging backend
+          if (storedToken === 'demo-token') {
+            setLoading(false);
+            return;
+          }
           // Verify with backend
           const me = await authApi.getCurrentUser();
           if (me) {
@@ -75,19 +80,21 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
-  const loginAsDemo = (role = 'ROLE_ADMIN') => {
+  const loginAsDemo = (role = 'ROLE_ADMIN', customName = null) => {
+    const trimmed = typeof customName === 'string' && customName.trim() ? customName.trim() : '';
+    const displayName = trimmed || 'Sujit Dughad (Admin)';
     const demoUser = {
       id: 1,
-      username: 'admin.demo',
-      email: 'admin@university.edu',
-      fullName: 'Dr. Jane Smith (Administrator)',
+      username: trimmed ? trimmed.toLowerCase().replace(/\s+/g, '.') : 'admin.demo',
+      email: trimmed ? `${trimmed.toLowerCase().replace(/[^a-z0-9]/g, '.')}@university.edu` : 'admin@university.edu',
+      fullName: displayName,
       role: role,
     };
     localStorage.setItem('edupulse_token', 'demo-token');
     localStorage.setItem('edupulse_user', JSON.stringify(demoUser));
     setToken('demo-token');
     setUser(demoUser);
-    addToast('Logged in successfully in Demo Mode!', 'info');
+    addToast(`Logged in successfully as ${displayName}!`, 'info');
   };
 
   const logout = async () => {
@@ -116,6 +123,7 @@ export const AuthProvider = ({ children }) => {
         token,
         loading,
         isAuthenticated: !!token && !!user,
+        isDemo: token === 'demo-token',
         isAdmin,
         isTeacher,
         login,

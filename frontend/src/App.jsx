@@ -27,7 +27,7 @@ import { extractErrorMessage } from './utils/errorHandler';
 import { INITIAL_DEMO_DATA } from './utils/mockData';
 
 const MainApp = () => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, isDemo, loading: authLoading } = useAuth();
   const { addToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -218,6 +218,24 @@ const MainApp = () => {
   const handleSaveStudent = async (formData) => {
     setActionLoading(true);
     try {
+      if (isDemo) {
+        if (editingStudent && editingStudent.id) {
+          const updated = { ...editingStudent, ...formData };
+          setAllStudents((prev) => prev.map((s) => (s.id === editingStudent.id ? updated : s)));
+          setPagedStudents((prev) => prev.map((s) => (s.id === editingStudent.id ? updated : s)));
+          addToast('Student details updated (Demo Mode)', 'success');
+        } else {
+          const newStudent = { ...formData, id: Date.now() };
+          setAllStudents((prev) => [newStudent, ...prev]);
+          setPagedStudents((prev) => [newStudent, ...prev]);
+          setTotalElements((prev) => prev + 1);
+          addToast('Student created and registered (Demo Mode)', 'success');
+        }
+        setStudentModalOpen(false);
+        setEditingStudent(null);
+        return;
+      }
+
       if (editingStudent && editingStudent.id) {
         await studentApi.update(editingStudent.id, formData);
         addToast('Student details updated successfully', 'success');
@@ -243,6 +261,15 @@ const MainApp = () => {
       onConfirm: async () => {
         setActionLoading(true);
         try {
+          if (isDemo) {
+            setAllStudents((prev) => prev.filter((s) => s.id !== st.id));
+            setPagedStudents((prev) => prev.filter((s) => s.id !== st.id));
+            setTotalElements((prev) => Math.max(0, prev - 1));
+            addToast('Student deleted (Demo Mode)', 'success');
+            setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+            return;
+          }
+
           await studentApi.delete(st.id);
           addToast('Student deleted successfully', 'success');
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
@@ -260,6 +287,21 @@ const MainApp = () => {
   const handleSaveDepartment = async (formData) => {
     setActionLoading(true);
     try {
+      if (isDemo) {
+        if (editingDepartment && editingDepartment.id) {
+          const updated = { ...editingDepartment, ...formData };
+          setDepartments((prev) => prev.map((d) => (d.id === editingDepartment.id ? updated : d)));
+          addToast('Department updated (Demo Mode)', 'success');
+        } else {
+          const newDept = { ...formData, id: Date.now() };
+          setDepartments((prev) => [...prev, newDept]);
+          addToast('Department created (Demo Mode)', 'success');
+        }
+        setDepartmentModalOpen(false);
+        setEditingDepartment(null);
+        return;
+      }
+
       if (editingDepartment && editingDepartment.id) {
         await departmentApi.update(editingDepartment.id, formData);
         addToast('Department updated successfully', 'success');
@@ -285,6 +327,13 @@ const MainApp = () => {
       onConfirm: async () => {
         setActionLoading(true);
         try {
+          if (isDemo) {
+            setDepartments((prev) => prev.filter((d) => d.id !== dept.id));
+            addToast('Department deleted (Demo Mode)', 'success');
+            setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+            return;
+          }
+
           await departmentApi.delete(dept.id);
           addToast('Department deleted successfully', 'success');
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
@@ -302,6 +351,21 @@ const MainApp = () => {
   const handleSaveCourse = async (formData) => {
     setActionLoading(true);
     try {
+      if (isDemo) {
+        if (editingCourse && editingCourse.id) {
+          const updated = { ...editingCourse, ...formData };
+          setCourses((prev) => prev.map((c) => (c.id === editingCourse.id ? updated : c)));
+          addToast('Course program updated (Demo Mode)', 'success');
+        } else {
+          const newCourse = { ...formData, id: Date.now() };
+          setCourses((prev) => [...prev, newCourse]);
+          addToast('Course program created (Demo Mode)', 'success');
+        }
+        setCourseModalOpen(false);
+        setEditingCourse(null);
+        return;
+      }
+
       if (editingCourse && editingCourse.id) {
         await courseApi.update(editingCourse.id, formData);
         addToast('Course program updated successfully', 'success');
@@ -327,6 +391,13 @@ const MainApp = () => {
       onConfirm: async () => {
         setActionLoading(true);
         try {
+          if (isDemo) {
+            setCourses((prev) => prev.filter((c) => c.id !== course.id));
+            addToast('Course deleted (Demo Mode)', 'success');
+            setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+            return;
+          }
+
           await courseApi.delete(course.id);
           addToast('Course deleted successfully', 'success');
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
@@ -344,6 +415,14 @@ const MainApp = () => {
   const handleSaveAcademicYear = async (formData) => {
     setActionLoading(true);
     try {
+      if (isDemo) {
+        const newAy = { ...formData, id: Date.now(), isCurrent: academicYears.length === 0 };
+        setAcademicYears((prev) => [...prev, newAy]);
+        addToast('Academic session created (Demo Mode)', 'success');
+        setAcademicYearModalOpen(false);
+        return;
+      }
+
       const created = await academicYearApi.create(formData);
       addToast('Academic session created successfully', 'success');
       setAcademicYearModalOpen(false);
@@ -357,6 +436,14 @@ const MainApp = () => {
 
   const handleSetCurrentAcademicYear = async (id) => {
     try {
+      if (isDemo) {
+        setAcademicYears((prev) => prev.map((a) => ({ ...a, isCurrent: a.id === id })));
+        const curr = academicYears.find((a) => a.id === id);
+        if (curr) setCurrentAcademicYear({ ...curr, isCurrent: true });
+        addToast('Active academic term updated! (Demo Mode)', 'success');
+        return;
+      }
+
       await academicYearApi.setCurrent(id);
       addToast('Active academic term updated!', 'success');
       loadAuxData();
@@ -373,6 +460,13 @@ const MainApp = () => {
       onConfirm: async () => {
         setActionLoading(true);
         try {
+          if (isDemo) {
+            setAcademicYears((prev) => prev.filter((a) => a.id !== ay.id));
+            addToast('Academic year deleted (Demo Mode)', 'success');
+            setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+            return;
+          }
+
           await academicYearApi.delete(ay.id);
           addToast('Academic year deleted successfully', 'success');
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
@@ -431,6 +525,7 @@ const MainApp = () => {
           currentAcademicYear={currentAcademicYear}
           onRefresh={refreshAll}
           refreshing={refreshing}
+          isDemo={isDemo}
         />
 
         <main className="content-area">

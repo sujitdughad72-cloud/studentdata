@@ -28,7 +28,22 @@ export const Login = () => {
     try {
       await login({ username, password });
     } catch (err) {
-      addToast(extractErrorMessage(err, 'Login failed: check your username and password'), 'error');
+      const isDeployed = typeof window !== 'undefined' && 
+        window.location.hostname !== 'localhost' && 
+        window.location.hostname !== '127.0.0.1';
+      
+      const isBackendMissing =
+        err.status === 404 ||
+        err.message?.includes('not found') ||
+        err.message?.includes('Network error') ||
+        err.message?.includes('Failed to fetch');
+
+      if (isDeployed && isBackendMissing) {
+        addToast(`Cloud backend not connected — opened in Demo Mode as "${username}"!`, 'info');
+        loginAsDemo('ROLE_ADMIN', username);
+      } else {
+        addToast(extractErrorMessage(err, 'Login failed: check your username and password'), 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -51,7 +66,22 @@ export const Login = () => {
       });
       setIsRegister(false);
     } catch (err) {
-      addToast(extractErrorMessage(err, 'Registration failed'), 'error');
+      const isDeployed = typeof window !== 'undefined' && 
+        window.location.hostname !== 'localhost' && 
+        window.location.hostname !== '127.0.0.1';
+      
+      const isBackendMissing =
+        err.status === 404 ||
+        err.message?.includes('not found') ||
+        err.message?.includes('Network error') ||
+        err.message?.includes('Failed to fetch');
+
+      if (isDeployed && isBackendMissing) {
+        addToast(`Cloud backend not connected — opened in Demo Mode as "${fullName || username}"!`, 'info');
+        loginAsDemo(role, fullName || username);
+      } else {
+        addToast(extractErrorMessage(err, 'Registration failed'), 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -143,7 +173,7 @@ export const Login = () => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => loginAsDemo('ROLE_ADMIN')}
+              onClick={() => loginAsDemo('ROLE_ADMIN', username)}
               style={{
                 width: '100%',
                 marginTop: '10px',
