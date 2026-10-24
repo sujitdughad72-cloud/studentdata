@@ -1,0 +1,18 @@
+# Version control
+.git
+.github
+.idea
+.vscode
+
+# Build artifacts
+target/
+**/target/
+dist/
+**/dist/
+node_modules/
+**/node_modules/
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs and temp files
+*.log
+scratch/
